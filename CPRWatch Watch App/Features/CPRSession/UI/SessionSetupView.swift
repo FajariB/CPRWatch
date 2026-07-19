@@ -30,3 +30,22 @@ struct SessionSetupView: View {
         }
     }
 }
+
+private struct SessionSetupPreview: View {
+    @State private var cadence = CadencePreset.standard
+    @State private var mode = CPRMode.compressionOnly
+
+    var body: some View {
+        ScrollView {
+            SessionSetupView(
+                cadence: $cadence,
+                mode: $mode,
+                onStart: {},
+                onShowSafety: {}
+            )
+            .padding(.horizontal, 6)
+        }
+    }
+}
+
+#Preview("Session Setup") { SessionSetupPreview() }

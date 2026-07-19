@@ -7,3 +7,6 @@ struct SafetyInformationView: View {
             .padding()
     }
 }
+
+
+#Preview("Safety Information") { SafetyInformationView() }

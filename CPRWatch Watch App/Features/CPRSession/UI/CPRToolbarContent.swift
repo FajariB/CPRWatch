@@ -11,3 +11,10 @@ struct CPRToolbarContent: ToolbarContent {
         }
     }
 }
+
+#Preview("CPR Toolbar") {
+    NavigationStack {
+        Text("Session content")
+            .toolbar { CPRToolbarContent() }
+    }
+}

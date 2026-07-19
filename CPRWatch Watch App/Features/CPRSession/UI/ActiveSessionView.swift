@@ -48,3 +48,38 @@ struct ActiveSessionView: View {
     private var countAccessibilityLabel: String { if case .breaths = state.phase { return "Give 2 breaths" }; if case let .compressions(count) = state.phase { return "Compression \(count) of 30" }; return isPaused ? "Session paused" : "Ready" }
     private func formatted(_ duration: TimeInterval) -> String { let total = Int(duration); return String(format: "%02d:%02d", total / 60, total % 60) }
 }
+
+#Preview("Active Compressions") {
+    ScrollView {
+        ActiveSessionView(
+            state: CPRSessionState(
+                phase: .compressions(count: 18),
+                elapsed: 72,
+                cycle: 4,
+                shouldRotate: false,
+                beat: 18
+            ),
+            cadence: .standard,
+            isPaused: false,
+            onTogglePause: {},
+            onStop: {}
+        )
+        .padding(.horizontal, 6)
+    }
+}
+
+#Preview("Paused Session") {
+    ActiveSessionView(
+        state: CPRSessionState(
+            phase: .paused,
+            elapsed: 120,
+            cycle: 7,
+            shouldRotate: true,
+            beat: 220
+        ),
+        cadence: .standard,
+        isPaused: true,
+        onTogglePause: {},
+        onStop: {}
+    )
+}
