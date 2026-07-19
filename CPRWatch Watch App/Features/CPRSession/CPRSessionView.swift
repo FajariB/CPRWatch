@@ -72,6 +72,4 @@ struct CPRSessionView: View {
     }
 }
 
-typealias ContentView = CPRSessionView
-
 #Preview { CPRSessionView() }
