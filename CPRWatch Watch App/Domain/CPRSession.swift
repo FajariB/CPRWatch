@@ -1,10 +1,7 @@
 import Foundation
 
 enum CadencePreset: Int, CaseIterable, Identifiable {
-    case slow = 100
-    case standard = 110
-    case fast = 120
-
+    case slow = 100, standard = 110, fast = 120
     var id: Int { rawValue }
     var beatsPerMinute: Double { Double(rawValue) }
 }
@@ -12,7 +9,6 @@ enum CadencePreset: Int, CaseIterable, Identifiable {
 enum CPRMode: String, CaseIterable, Identifiable {
     case compressionOnly = "Compression-only"
     case thirtyToTwo = "30:2 guided"
-
     var id: String { rawValue }
 }
 
@@ -21,7 +17,6 @@ enum CPRPhase: Equatable {
     case compressions(count: Int)
     case breaths
     case paused
-    case stopped
 }
 
 struct CPRSessionState: Equatable {
@@ -30,7 +25,6 @@ struct CPRSessionState: Equatable {
     let cycle: Int
     let shouldRotate: Bool
     let beat: Int
-
     static let idle = CPRSessionState(phase: .idle, elapsed: 0, cycle: 0, shouldRotate: false, beat: 0)
 }
 
@@ -40,28 +34,14 @@ struct CPRSessionEngine {
 
     func state(elapsed: TimeInterval, paused: Bool = false) -> CPRSessionState {
         guard elapsed > 0 else { return .idle }
-        if paused {
-            return CPRSessionState(phase: .paused, elapsed: elapsed, cycle: cycle(at: elapsed), shouldRotate: false, beat: beat(at: elapsed))
-        }
-
         let beat = beat(at: elapsed)
-        let cycleLength = mode == .thirtyToTwo ? 32 : 30
-        let position = beat % cycleLength
-        let phase: CPRPhase
-        if mode == .thirtyToTwo && position >= 30 {
-            phase = .breaths
-        } else {
-            phase = .compressions(count: position + 1)
-        }
+        if paused { return CPRSessionState(phase: .paused, elapsed: elapsed, cycle: cycle(at: elapsed), shouldRotate: false, beat: beat) }
 
-        return CPRSessionState(
-            phase: phase,
-            elapsed: elapsed,
-            cycle: cycle(at: elapsed),
-            // Keep the cue visible briefly so a 50 ms polling tick cannot miss it.
-            shouldRotate: elapsed >= 120 && Int(elapsed) % 120 <= 1,
-            beat: beat
-        )
+        let position = beat % (mode == .thirtyToTwo ? 32 : 30)
+        let phase: CPRPhase = mode == .thirtyToTwo && position >= 30
+            ? .breaths
+            : .compressions(count: position + 1)
+        return CPRSessionState(phase: phase, elapsed: elapsed, cycle: cycle(at: elapsed), shouldRotate: rotationCue(at: elapsed), beat: beat)
     }
 
     private func beat(at elapsed: TimeInterval) -> Int {
@@ -69,7 +49,11 @@ struct CPRSessionEngine {
     }
 
     private func cycle(at elapsed: TimeInterval) -> Int {
-        let duration = mode == .thirtyToTwo ? 32 * 60 / cadence.beatsPerMinute : 30 * 60 / cadence.beatsPerMinute
-        return max(1, Int(elapsed / duration) + 1)
+        let beats = mode == .thirtyToTwo ? 32.0 : 30.0
+        return max(1, Int(elapsed / (beats * 60 / cadence.beatsPerMinute)) + 1)
+    }
+
+    private func rotationCue(at elapsed: TimeInterval) -> Bool {
+        elapsed >= 120 && Int(elapsed) % 120 <= 1
     }
 }
