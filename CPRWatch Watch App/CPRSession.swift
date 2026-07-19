@@ -58,7 +58,8 @@ struct CPRSessionEngine {
             phase: phase,
             elapsed: elapsed,
             cycle: cycle(at: elapsed),
-            shouldRotate: elapsed >= 120 && Int(elapsed) % 120 == 0,
+            // Keep the cue visible briefly so a 50 ms polling tick cannot miss it.
+            shouldRotate: elapsed >= 120 && Int(elapsed) % 120 <= 1,
             beat: beat
         )
     }
