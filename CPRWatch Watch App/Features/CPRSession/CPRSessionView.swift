@@ -7,28 +7,41 @@ struct CPRSessionView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                if model.isRunning { activeView } else { setupView }
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 12) {
+                    if model.isRunning { activeView } else { setupView }
+                }
+                .padding(.horizontal, 6)
             }
-            .padding(.horizontal, 10)
+            .toolbar { toolbarTitle }
         }
         .sheet(isPresented: $showSafety) { safetyView }
         .onReceive(Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()) { model.update(now: $0) }
     }
 
+    private var toolbarTitle: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            VStack(spacing: 0) {
+                Text("CPRWatch").font(.headline)
+                Text("Timing assistant").font(.caption2).foregroundStyle(.secondary)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
+
     private var setupView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("CPRWatch").font(.title3.weight(.semibold))
-                Text("Timing assistant").font(.caption).foregroundStyle(.secondary)
-            }
             Picker("Cadence", selection: $model.cadence) {
                 ForEach(CadencePreset.allCases) { Text("\($0.rawValue) BPM").tag($0) }
-            }.accessibilityHint("Choose a compression cadence")
+            }
+            .frame(maxWidth: .infinity)
+            .accessibilityHint("Choose a compression cadence")
             Picker("Mode", selection: $model.mode) {
                 ForEach(CPRMode.allCases) { Text($0.rawValue).tag($0) }
-            }.accessibilityHint("Choose compression-only or 30 to 2 guidance")
+            }
+            .frame(maxWidth: .infinity)
+            .accessibilityHint("Choose compression-only or 30 to 2 guidance")
             Button("Start CPR", action: model.start)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
