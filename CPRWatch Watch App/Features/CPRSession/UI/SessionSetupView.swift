@@ -11,22 +11,33 @@ struct SessionSetupView: View {
             Picker("Cadence", selection: $cadence) {
                 ForEach(CadencePreset.allCases) { Text("\($0.rawValue) BPM").tag($0) }
             }
-            .frame(maxWidth: .infinity)
+            .pickerStyle(.wheel)
+            .labelsHidden()
+            .frame(maxWidth: .infinity,minHeight: 48)
             .accessibilityHint("Choose a compression cadence")
 
             Picker("Mode", selection: $mode) {
                 ForEach(CPRMode.allCases) { Text($0.rawValue).tag($0) }
             }
+            .pickerStyle(.wheel)
+            .labelsHidden()
+            .frame(maxWidth: .infinity,minHeight: 48)
             .frame(maxWidth: .infinity)
+            
             .accessibilityHint("Choose compression-only or 30 to 2 guidance")
+            HStack{
+                Button("Start CPR", action: onStart)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                Button(action: onShowSafety){
+                    Image(systemName: "info.circle")
+                }
+                .buttonStyle(.bordered)
+                .cornerRadius(100)
+                .frame(maxWidth: 48, minHeight: 48)
 
-            Button("Start CPR", action: onStart)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .frame(maxWidth: .infinity, minHeight: 44)
-            Button("Safety information", action: onShowSafety)
-                .font(.caption)
-                .frame(maxWidth: .infinity, minHeight: 44)
+            }
         }
     }
 }
@@ -43,7 +54,7 @@ private struct SessionSetupPreview: View {
                 onStart: {},
                 onShowSafety: {}
             )
-            .padding(.horizontal, 6)
+            .padding(.horizontal, 4)
         }
     }
 }
