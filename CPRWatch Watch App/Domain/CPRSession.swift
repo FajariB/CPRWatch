@@ -1,17 +1,5 @@
 import Foundation
 
-enum CadencePreset: Int, CaseIterable, Identifiable {
-    case slow = 100, standard = 110, fast = 120
-    var id: Int { rawValue }
-    var beatsPerMinute: Double { Double(rawValue) }
-}
-
-enum CPRMode: String, CaseIterable, Identifiable {
-    case compressionOnly = "Compression-only"
-    case thirtyToTwo = "30:2 guided"
-    var id: String { rawValue }
-}
-
 enum CPRPhase: Equatable {
     case idle
     case compressions(count: Int)
